@@ -1,13 +1,10 @@
-# TD-Prefab
-This project can be used as a boilerplate to base future projects off of.
+A compilation of wrappers around the webutils in TouchDesigner.
 
-# Description
-Tell us something about this project.
+##WebClient
+A wrapper around the webClientDAT, allowing for an async workflow with an API similiar to requests or axios.
 
-# Version
-2022.28040
+##WebServer
+A routed wrapper around the WebServerDAT, allowing for routed handlers and middleware. Truly amazing (not measured by regular webstandarts.)
 
-# Notes
-Never have anything config, log or similiar related inside the repository.
-Do not push to this repository with any kind of project related stuff.
-Us this only as a boilerplate.
+##Downloader
+Async dowload of file via HTTP protocoll. Because, why not?
