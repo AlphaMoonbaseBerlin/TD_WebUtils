@@ -3,14 +3,14 @@
 Name : response
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 3
-Savetimestamp : 2023-07-19T21:23:41.745068
-Saveorigin : Project.toe
+Build : 4
+Savetimestamp : 2023-07-20T12:41:30.874901
+Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
 import json
 from dataclasses import dataclass
-
+debug = op("logger").Log
 @dataclass
 class Response:
     statuscode : int
@@ -44,16 +44,22 @@ class Response:
         try:
             self._td_response["data"] = json.dumps( self.data )
             self.header["Content-Type"] = "application/json"
+            debug("Parsed Dict to JSON-Data.")
+
         except:
             self._td_response["data"] = self.data
+            debug("Using regular Data")
 
     def _parse_status(self):
         self._td_response["statusCode"] = self.statuscode
         self._td_response["statusReason"] = self.statusreason
 
     def _parsed_response(self):
-        self._parse_header()
+      
         self._parse_data()
         self._parse_status()
         self._parse_cookies()
+        self._parse_header()
+        print( self._td_response)
+        debug( self._td_response )
         return self._td_response

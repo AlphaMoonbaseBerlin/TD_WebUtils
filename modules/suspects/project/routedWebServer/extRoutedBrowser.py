@@ -3,9 +3,9 @@
 Name : extRoutedBrowser
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 3
-Savetimestamp : 2023-07-19T21:23:40.396948
-Saveorigin : Project.toe
+Build : 4
+Savetimestamp : 2023-07-20T12:41:30.239068
+Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
 from urllib import request
@@ -20,16 +20,21 @@ class RoutedBrowser:
 	def __init__(self, ownerComp):
 		# The component to which this extension is attached
 		self.ownerComp = ownerComp
-		self.Route_Definition = mod( self.ownerComp.par.Routes.eval().path ).routes
+		#self.Route_Definition = mod( self.ownerComp.par.Routes.eval().path ).routes
 		self.Exceptions = exceptions
 		self.Cookie = Cookie
 
-	def Create_Routes(self):
-		new_routes = self.ownerComp.parent().copy( self.ownerComp.op("routes") )
-		new_routes.nodeX = self.ownerComp.nodeX
-		new_routes.nodeY = self.ownerComp.nodeY - 200
-		self.ownerComp.par.Routes = new_routes
+	@property
+	def Route_Definition(self):
+		return getattr( self.ownerComp.op("repo_maker").Repo.module, "routes", {} )
 	
+	@property
+	def Middleware_Definition(self):
+		return getattr( self.ownerComp.op("repo_maker").Repo.module, "midllewares", [] )
+
+	def Create_Routes(self):
+		self.ownerComp.op("repo_maker").Create_Repo()
+		
 	def handle_request( self, td_request, td_response ):
 		response_object = Response( td_response )
 		request_object = Request( td_request )
@@ -37,7 +42,7 @@ class RoutedBrowser:
 		request_object.params = params
 
 		try:
-			for middleware in route_handler.get("middleware", []):
+			for middleware in route_handler.get("middleware", []) + self.Middleware_Definition:
 				middleware( request_object, response_object, self.ownerComp )
 			response_object.statuscode = 200
 			response_object.statusreason = "Ok"
@@ -49,6 +54,7 @@ class RoutedBrowser:
 			response_object.statuscode 		= code
 			response_object.statusreason 	= str(e)
 			response_object.data			= e
+		
 		return response_object._parsed_response()
 
 
