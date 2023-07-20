@@ -1,10 +1,9 @@
-
 '''Info Header Start
 Name : extRoutedBrowser
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 4
-Savetimestamp : 2023-07-20T12:41:30.239068
+Build : 5
+Savetimestamp : 2023-07-20T14:02:23.572733
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -47,8 +46,7 @@ class RoutedBrowser:
 			response_object.statuscode = 200
 			response_object.statusreason = "Ok"
 
-			route_handler["handler"](request_object, response_object, self.ownerComp)
-			
+			route_handler["handler"](request_object, response_object, self.ownerComp)		
 		except Exception as e:
 			code = exceptions.exception_dict.get( type(e), 500)
 			response_object.statuscode 		= code

@@ -1,11 +1,10 @@
-
 '''Info Header Start
 Name : exceptions
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 3
-Savetimestamp : 2023-07-19T21:23:39.713948
-Saveorigin : Project.toe
+Build : 4
+Savetimestamp : 2023-07-20T14:02:22.344048
+Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
 class WebClientError(Exception):
@@ -13,6 +12,10 @@ class WebClientError(Exception):
 
 class UserError(WebClientError):
     pass
+
+#200
+class OK(WebClientError):
+	pass
 
 #400
 class BadRequest(UserError):
@@ -66,6 +69,7 @@ class GatewayTimeout(ServerError):
 
 
 exception_dict = {
+	OK				: 200,
     BadRequest 		: 400,
     Unauthorized 	: 401,
     Forbidden		: 403,
