@@ -1,10 +1,9 @@
-
 '''Info Header Start
 Name : response
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 4
-Savetimestamp : 2023-07-20T12:41:30.874901
+Build : 5
+Savetimestamp : 2023-07-21T13:51:23.757742
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -60,6 +59,5 @@ class Response:
         self._parse_status()
         self._parse_cookies()
         self._parse_header()
-        print( self._td_response)
-        debug( self._td_response )
+
         return self._td_response

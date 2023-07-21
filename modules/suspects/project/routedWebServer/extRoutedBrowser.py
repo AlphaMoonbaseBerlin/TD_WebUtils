@@ -2,8 +2,8 @@
 Name : extRoutedBrowser
 Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 5
-Savetimestamp : 2023-07-20T14:02:23.572733
+Build : 6
+Savetimestamp : 2023-07-21T13:56:46.415366
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -29,7 +29,7 @@ class RoutedBrowser:
 	
 	@property
 	def Middleware_Definition(self):
-		return getattr( self.ownerComp.op("repo_maker").Repo.module, "midllewares", [] )
+		return getattr( self.ownerComp.op("repo_maker").Repo.module, "middlewares", [] )
 
 	def Create_Routes(self):
 		self.ownerComp.op("repo_maker").Create_Repo()
