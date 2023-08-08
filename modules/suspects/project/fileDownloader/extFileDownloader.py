@@ -3,8 +3,8 @@
 Name : extFileDownloader
 Author : wieland@MONOMANGO
 Version : 0
-Build : 10
-Savetimestamp : 2023-08-08T16:26:37.108157
+Build : 12
+Savetimestamp : 2023-08-08T16:50:01.961183
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -29,7 +29,8 @@ class extFileDownloader:
 	def QueryDownload(self, source_url, 
 		    				target_dir, 
 							filename = None, 
-							meta = None):
+							meta = None,
+							request_header = {} ):
 		self.query.append(
 			Download(
 				source				= source_url, 
@@ -39,7 +40,8 @@ class extFileDownloader:
 				timeoutLength		= self.ownerComp.par.Timeout.eval(),
 				existsBehaviour 	= self.ownerComp.par.Existsbehaviour.menuIndex,
 				completeCallback 	= self._finishDownload,
-				errorCallback 		= self._errorDownload )
+				errorCallback 		= self._errorDownload,
+				request_header 		= request_header )
 		)
 		self.log("Querying Download", source_url, target_dir)
 		self.checkQuery()
@@ -57,15 +59,14 @@ class extFileDownloader:
 	def startDownload(self, download: Download ):
 		downloadId = self.ownerComp.op("downloader").request(
 			download.source,
-			"GET"
+			"GET",
+			header = download.requestHeader
 			#timeout = self.ownerComp.par.Timeout.eval()
 		)
 		self.log("Starting Download", download)
 		self.callback("onDownloadStart", download, self.ownerComp )
 		self.activeDownloads[downloadId] = download
 
-	def updateInfoTable(self):
-		return
 	
 	def updateDownload(self, id, headerDict, data):
 		self.log("Writing Data", id)
@@ -73,6 +74,11 @@ class extFileDownloader:
 		#if download.status != Status.RUNNING: return False
 		download.update(data, headerDict)
 		self.updateInfo()
+
+	def errorDownload(self, request_id):
+		download = self.activeDownloads[request_id]
+		self.ownerComp.op("downloader").closeConnection(request_id)
+		download._timeout()
 
 	def _clearDownload(self, download:Download, callback_name:str):
 		self.callback(callback_name, download, self.ownerComp )
@@ -108,3 +114,5 @@ class extFileDownloader:
 				item.filepath,
 				item.meta
 			])
+
+	

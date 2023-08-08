@@ -2,8 +2,8 @@
 Name : downloadClass
 Author : wieland@MONOMANGO
 Version : 0
-Build : 16
-Savetimestamp : 2023-08-08T16:26:38.120732
+Build : 18
+Savetimestamp : 2023-08-08T16:45:29.059731
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -30,6 +30,8 @@ class DownloadDataclass:
     source          : str                   = ""
     header          : typing.Dict[str, str] = dataclasses.field( default_factory = dict )
     downloaded      : int                   = 0
+
+    requestHeader   : typing.Dict[str, str] = dataclasses.field( default_factory = dict)
 
     filehandler     : typing.IO[typing.Any] = None
     filepath        : pathlib.Path          = None
@@ -64,11 +66,12 @@ class Download ( DownloadDataclass ):
                  source:str, 
                  fileDir:           pathlib.Path, 
                  fileName:          str , 
-                 meta:              dict, 
+                 meta:              typing.Dict[any, any], 
                  timeoutLength:     int,
                  existsBehaviour:   ExistsBehaviour, 
                  completeCallback:  typing.Callable, 
-                 errorCallback:   typing.Callable):
+                 errorCallback:     typing.Callable,
+                 requestHeader:     typing.Dict[str, str] ):
         
         parsedSource    = urlparse( source )
         pathSource      = pathlib.Path( parsedSource.path )
@@ -78,6 +81,7 @@ class Download ( DownloadDataclass ):
             meta            = meta,
             timeout_length  = timeoutLength
         )
+        self.requestHeader      = requestHeader
         self.existsBehaviour    = existsBehaviour
         self.completeCallback   = completeCallback
         self.errorCallback      = errorCallback
