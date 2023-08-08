@@ -3,8 +3,8 @@
 Name : extFileDownloader
 Author : wieland@MONOMANGO
 Version : 0
-Build : 12
-Savetimestamp : 2023-08-08T16:50:01.961183
+Build : 13
+Savetimestamp : 2023-08-08T16:53:59.032337
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -26,24 +26,24 @@ class extFileDownloader:
 		self.Query_Download = self.QueryDownload
 		self.callback = self.ownerComp.op("callbackManager").Do_Callback
 
-	def QueryDownload(self, source_url, 
-		    				target_dir, 
+	def QueryDownload(self, sourceUrl, 
+		    				targetDir, 
 							filename = None, 
 							meta = None,
-							request_header = {} ):
+							requestHeader = {} ):
 		self.query.append(
 			Download(
-				source				= source_url, 
-				fileDir				= target_dir, 
+				source				= sourceUrl, 
+				fileDir				= targetDir, 
 				fileName			= filename, 
 				meta				= meta, 
 				timeoutLength		= self.ownerComp.par.Timeout.eval(),
 				existsBehaviour 	= self.ownerComp.par.Existsbehaviour.menuIndex,
 				completeCallback 	= self._finishDownload,
 				errorCallback 		= self._errorDownload,
-				request_header 		= request_header )
+				requestHeader 		= requestHeader )
 		)
-		self.log("Querying Download", source_url, target_dir)
+		self.log("Querying Download", sourceUrl, targetDir)
 		self.checkQuery()
 		return
 
