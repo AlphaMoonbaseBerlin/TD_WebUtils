@@ -1,14 +1,14 @@
-
 '''Info Header Start
 Name : downloader_utils
-Author : Alpha Moonbase
+Author : wieland@MONOMANGO
 Version : 0
-Build : 3
-Savetimestamp : 1669911388
-Saveorigin : Project.toe
+Build : 4
+Savetimestamp : 2023-08-08T15:59:47.530088
+Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
 def convert_size(size_bytes):
+   
    if size_bytes == 0:
        return "0B"
    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
