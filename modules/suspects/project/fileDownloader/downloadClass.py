@@ -2,16 +2,16 @@
 Name : downloadClass
 Author : wieland@MONOMANGO
 Version : 0
-Build : 18
-Savetimestamp : 2023-08-08T16:45:29.059731
+Build : 19
+Savetimestamp : 2023-08-09T09:18:19.461101
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
 
 import dataclasses, uuid, typing, td, pathlib, mimetypes, os, datetime
+from fileinput import filename
 from enum import Enum, auto
 from urllib.parse import urlparse
-import TDFunctions
 
 class Status(Enum):
     IDLE = auto()
@@ -28,24 +28,27 @@ class ExistsBehaviour(Enum):
 @dataclasses.dataclass
 class DownloadDataclass:
     source          : str                   = ""
-    header          : typing.Dict[str, str] = dataclasses.field( default_factory = dict )
+    responseHader   : typing.Dict[str, str] = dataclasses.field( default_factory = dict )
     downloaded      : int                   = 0
 
     requestHeader   : typing.Dict[str, str] = dataclasses.field( default_factory = dict)
 
-    filehandler     : typing.IO[typing.Any] = None
+    filehandler     : typing.IO[typing.Any] = dataclasses.field( default = None, repr = False)
     filepath        : pathlib.Path          = None
-
-    timeout_timer   : td.run                = None
+    #filename        : str                  = dataclasses.field( )
+    #THis will require some fuckery with getter/setter. Should be possible to automate!
+    
+    timeout_timer   : td.run                = dataclasses.field( default = None, repr = False)
     meta            : typing.Dict[any,any]  = dataclasses.field( default_factory = dict)
 
     status          : Status                = Status.IDLE
-    timeout_length  : int                   = -1
+    timeout_length  : int                   = dataclasses.field( default = 1000, repr = False)
 
-    startTime       : datetime.datetime     = dataclasses.field( default_factory= datetime.datetime.now )
+    startTime       : datetime.datetime     = dataclasses.field( default_factory= datetime.datetime.now, repr = False )
+
     @property
     def size(self):
-        return int( self.header.get("content-length", 1) )
+        return int( self.responseHader.get("content-length", 1) )
     
     @property
     def progress(self):
@@ -71,6 +74,7 @@ class Download ( DownloadDataclass ):
                  existsBehaviour:   ExistsBehaviour, 
                  completeCallback:  typing.Callable, 
                  errorCallback:     typing.Callable,
+                 startCallback:     typing.Callable,
                  requestHeader:     typing.Dict[str, str] ):
         
         parsedSource    = urlparse( source )
@@ -85,13 +89,16 @@ class Download ( DownloadDataclass ):
         self.existsBehaviour    = existsBehaviour
         self.completeCallback   = completeCallback
         self.errorCallback      = errorCallback
-        
+        self.startCallback      = startCallback
         #We are already doing that behaviour in the end, so we actually do not need to do that in the beginning. Not ideal. But with the UUIDs as the proxies
         #we do not know if a file is already in the download queue. 
         #other solution might be do NOT use UUIDs and instead also look for other files with the same stem.
         #But not today!
         #if ExistsBehaviour( self.existsBehaviour ) == ExistsBehaviour.INCREMENT: self.filepath = self._increment( self.filepath )
-        if ExistsBehaviour( self.existsBehaviour ) == ExistsBehaviour.KEEP and self.filepath.is_file(): self._done()
+        if ExistsBehaviour( self.existsBehaviour ) == ExistsBehaviour.KEEP and self.filepath.is_file(): 
+            self.start()
+            self._done()
+    
     def _increment(self, filePath: pathlib.Path):
         index = 0
         stem = filePath.stem
@@ -101,11 +108,11 @@ class Download ( DownloadDataclass ):
         return filePath
     
     def _createFilehandler(self):
-        
-        self.startTime = datetime.datetime.now()
+
+        if not getattr( self, "started", False): self.startTime = datetime.datetime.now()
 
         if not self.filepath.suffix:
-            self.filepath = self.filepath.with_suffix( mimetypes.guess_extension( self.header.get("content-type", "application/octet-stream") ) )
+            self.filepath = self.filepath.with_suffix( mimetypes.guess_extension( self.responseHader.get("content-type", "application/octet-stream") ) )
         if ExistsBehaviour( self.existsBehaviour ) is ExistsBehaviour.OVERRIDE and self.filepath.is_file():
             os.remove( self.filepath )
         self.filepath.parent.mkdir( exist_ok=True, parents=True )
@@ -148,12 +155,14 @@ class Download ( DownloadDataclass ):
 
     def update(self, data, header):
         self.status             = Status.RUNNING
-        self.header             = header or self.header
+        self.responseHader      = header or self.responseHader
         self.filehandler        = self.filehandler or self._createFilehandler()
         self.filehandler.write( data )
         self.downloaded        += len( data )
         self._tick()
 
-
-
-
+    def start(self):
+        self.status     = Status.RUNNING
+        self.startTime  = datetime.datetime.now()
+        self.startet    = True
+        self.startCallback( self )

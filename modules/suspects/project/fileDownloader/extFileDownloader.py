@@ -3,8 +3,8 @@
 Name : extFileDownloader
 Author : wieland@MONOMANGO
 Version : 0
-Build : 13
-Savetimestamp : 2023-08-08T16:53:59.032337
+Build : 14
+Savetimestamp : 2023-08-09T09:18:18.579656
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -41,6 +41,7 @@ class extFileDownloader:
 				existsBehaviour 	= self.ownerComp.par.Existsbehaviour.menuIndex,
 				completeCallback 	= self._finishDownload,
 				errorCallback 		= self._errorDownload,
+				startCallback		= self._startDownload,
 				requestHeader 		= requestHeader )
 		)
 		self.log("Querying Download", sourceUrl, targetDir)
@@ -64,7 +65,7 @@ class extFileDownloader:
 			#timeout = self.ownerComp.par.Timeout.eval()
 		)
 		self.log("Starting Download", download)
-		self.callback("onDownloadStart", download, self.ownerComp )
+		download.start()
 		self.activeDownloads[downloadId] = download
 
 	
@@ -96,6 +97,9 @@ class extFileDownloader:
 		self.log("Finish Callback")
 		self.updateInfo()
 		self._clearDownload( download, "onDownloadFinish" )
+
+	def _startDownload(self, download):
+		self.callback("onDownloadStart", download, self.ownerComp )
 
 	def updateInfo(self):
 		statefifo = self.ownerComp.op("state_fifo")
