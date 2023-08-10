@@ -1,9 +1,9 @@
 '''Info Header Start
 Name : downloadClass
-Author : wieland@MONOMANGO
+Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 19
-Savetimestamp : 2023-08-09T09:18:19.461101
+Build : 20
+Savetimestamp : 2023-08-09T23:26:01.388690
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -48,11 +48,11 @@ class DownloadDataclass:
 
     @property
     def size(self):
-        return int( self.responseHader.get("content-length", 1) )
+        return int( self.responseHader.get("content-length", 0) )
     
     @property
     def progress(self):
-        return self.downloaded / self.size
+        return self.downloaded / ( self.size or 1)
     
     @property
     def speed(self):
@@ -143,7 +143,7 @@ class Download ( DownloadDataclass ):
         self.errorCallback( self )
 
     def _tick(self):
-        if self.downloaded < self.size: return
+        if self.size <= 0 or self.downloaded < self.size: return
         self._stopTimeout()
         self.filehandler.close()
         self.filepath = self._increment( self.filepath )

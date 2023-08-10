@@ -1,10 +1,10 @@
 
 '''Info Header Start
 Name : extFileDownloader
-Author : wieland@MONOMANGO
+Author : Wieland@AMB-ZEPH15
 Version : 0
-Build : 14
-Savetimestamp : 2023-08-09T09:18:18.579656
+Build : 15
+Savetimestamp : 2023-08-09T23:26:00.291775
 Saveorigin : WebUtils.toe
 Saveversion : 2022.28040
 Info Header End'''
@@ -73,6 +73,7 @@ class extFileDownloader:
 		self.log("Writing Data", id)
 		download = self.activeDownloads[id]
 		#if download.status != Status.RUNNING: return False
+		
 		download.update(data, headerDict)
 		self.updateInfo()
 
