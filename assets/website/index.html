@@ -5,8 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<script>
+    document.addEventListener("DOMContentLoaded", (eventInfo) => {
+        let exampleInput = document.getElementById("textInput");
+        const urlParams = new URLSearchParams(window.location.search);
+        exampleInput.value = urlParams.get("exampleQuery");
+    })
+</script>
 <body>
     <h3>Hello World!</h3>
+    <input type="text" id="textInput">
     <img src="text1.png">
 </body>
 </html>
