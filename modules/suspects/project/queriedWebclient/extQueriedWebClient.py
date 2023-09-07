@@ -1,11 +1,11 @@
 '''Info Header Start
 Name : extQueriedWebClient
-Author : Wieland@AMB-ZEPH15
+Author : wieland@MONOMANGO
 Version : 0
-Build : 10
-Savetimestamp : 2023-07-21T19:57:15.560048
+Build : 12
+Savetimestamp : 2023-09-07T17:56:28.534868
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.34461
 Info Header End'''
 import json
 import urllib.parse
@@ -14,6 +14,7 @@ import request
 import response
 import quriedwebclient_exceptions
 from cookie import Cookie
+import ambMultipart
 
 def default_callback(request, response, server):
 	return None
@@ -31,6 +32,7 @@ class extQueriedWebClient:
 		self.Cookie = Cookie
 		self.Request_Class = request.Request
 		self.Response_Class = response.Response
+		self.Multipart = ambMultipart.Multipart
 	
 	@property 
 	def server(self):
@@ -68,7 +70,6 @@ class extQueriedWebClient:
 		except: 
 			return data
 		try:
-			
 			return json.loads(encoded_data)
 		except:
 			return encoded_data
@@ -85,9 +86,12 @@ class extQueriedWebClient:
 	def parse_response(self, status, headerDict, data):
 		statusCode = status["code"]
 		statusReason = status["message"]
-		
+
+		#redirects and similiar should be ignored!
+		if statusCode < 200: return
+
 		current_request = self.current_request
-		self.active = False
+		
 		self.current_request = None
 		
 		response_item = response.Response(
@@ -110,12 +114,11 @@ class extQueriedWebClient:
 				current_request.callback( current_request, response_item, self.ownerComp )
 			except Exception as e:
 				debug("Error in Request_Callback", e, current_request)
-			
+		
+		#Set active AFTER callbacks, otherwise order of execution is borked!
+		self.active = False
 		self.check_query()
 		return
-	
-	def MultipartFormData(self, dictionary):
-		return requests.Request("POST", "https://thisdoesnotexist.azua", files = dictionary).prepare().body
 	
 	def _read_header(self):
 		if self.ownerComp.par.Header.eval():
@@ -143,31 +146,31 @@ class extQueriedWebClient:
 			)
 		 )
 			
-	def Post(self, endpoint, params = None, header = {}, cookies = [], data = None, callback = default_callback):
+	def Post(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
 		method = "POST"
 		return self.QueryRequest( 
 			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Put(self, endpoint, params = None, header = {}, cookies = [], data = None, callback = default_callback):
+	def Put(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
 		method = "PUT"
 		return self.QueryRequest( 
 			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Patch(self, endpoint, params = None, header = {}, cookies = [], data = None, callback = default_callback):
+	def Patch(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
 		method = "PATCH"
 		return self.QueryRequest( 
 			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 		
-	def Delete(self, endpoint, params = None, header = {}, cookies = [], data = None, callback = default_callback):
+	def Delete(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
 		method = "DELETE"
 		return self.QueryRequest( 
 			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Search(self, endpoint, params = None, header = {}, cookies = [], data = None, callback = default_callback):
+	def Search(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
 		method = "SEARCH"
 		return self.QueryRequest( 
 			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)

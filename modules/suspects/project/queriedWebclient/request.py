@@ -1,11 +1,11 @@
 '''Info Header Start
 Name : request
-Author : Wieland@AMB-ZEPH15
+Author : wieland@MONOMANGO
 Version : 0
-Build : 10
-Savetimestamp : 2023-07-21T20:02:15.283682
+Build : 11
+Savetimestamp : 2023-09-07T17:55:53.087815
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.34461
 Info Header End'''
 
 from dataclasses import dataclass
@@ -51,7 +51,7 @@ class Request:
 	def _get_data(self):
 		try:
 			return json.dumps( self.data )
-		except json.JSONDecodeError:
+		except (json.JSONDecodeError, TypeError):
 			return self.data
 		
 	def _get_method(self):
