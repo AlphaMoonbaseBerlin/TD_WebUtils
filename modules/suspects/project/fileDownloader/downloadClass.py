@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : downloadClass
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 20
-Savetimestamp : 2023-08-09T23:26:01.388690
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 
 import dataclasses, uuid, typing, td, pathlib, mimetypes, os, datetime

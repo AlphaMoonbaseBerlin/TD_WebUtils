@@ -1,12 +1,10 @@
 
+
 '''Info Header Start
 Name : quriedwebclient_exceptions
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 3
-Savetimestamp : 2023-07-19T21:26:16.604394
-Saveorigin : Project.toe
-Saveversion : 2022.28040
+Saveorigin : WebUtils.toe
+Saveversion : 2022.32660
 Info Header End'''
 class WebClientError(Exception):
     pass

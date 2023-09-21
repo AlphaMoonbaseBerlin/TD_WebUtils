@@ -1,12 +1,10 @@
 
+
 '''Info Header Start
 Name : extFileDownloader
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 15
-Savetimestamp : 2023-08-09T23:26:00.291775
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 import os
 import downloader_utils

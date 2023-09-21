@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : request
-Author : wieland@MONOMANGO
-Version : 0
-Build : 11
-Savetimestamp : 2023-09-07T17:55:53.087815
+Author : Wieland@AMB-ZEPH15
 Saveorigin : WebUtils.toe
-Saveversion : 2022.34461
+Saveversion : 2022.32660
 Info Header End'''
 
 from dataclasses import dataclass
@@ -61,5 +59,5 @@ class Request:
 		return self.query
 	
 	def _get_url(self):
-		return f"{self.server.strip('/')}/{self.uri.strip('/')}" + f"?{urlencode(self.query)}"*bool(self.query)
+		return f"{self.server.rstrip('/')}/{self.uri.lstrip('/')}" + f"?{urlencode(self.query)}"*bool(self.query)
 

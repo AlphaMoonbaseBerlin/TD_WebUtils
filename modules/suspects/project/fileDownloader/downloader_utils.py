@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : downloader_utils
-Author : wieland@MONOMANGO
-Version : 0
-Build : 4
-Savetimestamp : 2023-08-08T15:59:47.530088
+Author : Wieland@AMB-ZEPH15
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 def convert_size(size_bytes):
    

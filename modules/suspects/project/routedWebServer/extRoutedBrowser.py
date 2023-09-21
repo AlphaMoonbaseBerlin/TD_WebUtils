@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : extRoutedBrowser
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 6
-Savetimestamp : 2023-07-21T13:56:46.415366
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 from urllib import request
 import exceptions

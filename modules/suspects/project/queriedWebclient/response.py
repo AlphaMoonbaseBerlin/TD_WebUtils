@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : response
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 5
-Savetimestamp : 2023-07-21T15:32:32.252119
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 
 import json

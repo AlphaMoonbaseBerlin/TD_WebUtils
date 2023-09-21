@@ -1,12 +1,10 @@
 
+
 '''Info Header Start
 Name : request
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 4
-Savetimestamp : 2023-07-21T11:11:22.164611
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 import json
 from dataclasses import dataclass

@@ -1,12 +1,11 @@
+
 '''Info Header Start
 Name : extQueriedWebClient
-Author : wieland@MONOMANGO
-Version : 0
-Build : 12
-Savetimestamp : 2023-09-07T17:56:28.534868
+Author : Wieland@AMB-ZEPH15
 Saveorigin : WebUtils.toe
-Saveversion : 2022.34461
+Saveversion : 2022.32660
 Info Header End'''
+
 import json
 import urllib.parse
 import requests
@@ -25,7 +24,9 @@ class extQueriedWebClient:
 		self.ownerComp 			= ownerComp
 		self.requests 			= []
 		self.active 			= False
-		self.current_request 	= None
+		self.current_request:request.Request 	= None
+
+		self.log = self.ownerComp.op("logger").Log
 
 		self.Processing 		= tdu.Dependency( False )
 		self.Exceptions = quriedwebclient_exceptions
@@ -40,6 +41,7 @@ class extQueriedWebClient:
 	
 	def Timeout(self):
 		self.ownerComp.op("webclient").par.stop.pulse()
+		self.log("Timeout", self.current_request._get_url() )
 		self.ownerComp.op("callbackManager").Do_Callback("onTimeout", self.current_request, self.ownerComp)
 
 		self.current_request = None
@@ -76,6 +78,7 @@ class extQueriedWebClient:
 		
 	def trigger_request(self):
 		self.ownerComp.op("timeout").par.start.pulse()
+		self.log("Running Request", self.current_request._get_url() )
 		self.ownerComp.op("webclient").request(
 					  self.current_request._get_url(),
 					  self.current_request._get_method(),
@@ -86,9 +89,11 @@ class extQueriedWebClient:
 	def parse_response(self, status, headerDict, data):
 		statusCode = status["code"]
 		statusReason = status["message"]
-
+		self.log("Getting Response", self.current_request._get_url(), statusCode )
 		#redirects and similiar should be ignored!
-		if statusCode < 200: return
+		if statusCode < 200 and 300 <= statusCode < 400: 
+			self.log("Ignoring Response", statusReason)
+			return
 
 		current_request = self.current_request
 		
@@ -100,7 +105,7 @@ class extQueriedWebClient:
 
 		if statusCode >= 400:
 			exception = quriedwebclient_exceptions.get( statusCode )
-			
+			self.log("Failed Response!", statusCode, statusReason, current_request, response_item)
 			self.ownerComp.op("callbackManager").Do_Callback("onError", current_request, 
 																		response_item,
 																		exception, 

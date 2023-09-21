@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : exceptions
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 4
-Savetimestamp : 2023-07-20T14:02:22.344048
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 class WebClientError(Exception):
     pass

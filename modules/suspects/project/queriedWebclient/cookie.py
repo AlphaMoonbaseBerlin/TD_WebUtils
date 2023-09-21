@@ -1,11 +1,9 @@
+
 '''Info Header Start
 Name : cookie
 Author : Wieland@AMB-ZEPH15
-Version : 0
-Build : 4
-Savetimestamp : 2023-07-21T15:32:36.279050
 Saveorigin : WebUtils.toe
-Saveversion : 2022.28040
+Saveversion : 2022.32660
 Info Header End'''
 import datetime
 import json
