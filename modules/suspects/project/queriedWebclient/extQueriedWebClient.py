@@ -7,49 +7,57 @@ Saveversion : 2022.32660
 Info Header End'''
 
 import json
-import urllib.parse
-import requests
-import request
-import response
+
+from response import Response
+from request import Request
+
 import quriedwebclient_exceptions
 from cookie import Cookie
-import ambMultipart
+from ambMultipart import Multipart
+from typing import List, Callable, Dict, Union, Type
 
-def default_callback(request, response, server):
+def default_callback(request:Request, response:Response, server:COMP):
 	return None
+
+requestData 	= Union[Dict, str, bytes]
+requestCallback = Callable[[Request, Response, COMP],None]
+
 class extQueriedWebClient:
 
-	def __init__(self, ownerComp):
+	def __init__(self, ownerComp:COMP):
 		# The component to which this extension is attached
-		self.ownerComp 			= ownerComp
-		self.requests 			= []
-		self.active 			= False
-		self.current_request:request.Request 	= None
+		self.ownerComp:COMP			= ownerComp
+		self.requests:list[Request]	= []
+		self.active:bool			= False
+		self.current_request:Request = None
 
 		self.log = self.ownerComp.op("logger").Log
 
-		self.Processing 		= tdu.Dependency( False )
-		self.Exceptions = quriedwebclient_exceptions
-		self.Cookie = Cookie
-		self.Request_Class = request.Request
-		self.Response_Class = response.Response
-		self.Multipart = ambMultipart.Multipart
+		self.Processing:bool						= tdu.Dependency( False )
+		self.Exceptions 							= quriedwebclient_exceptions
+		self.Cookie:Type[Cookie]					= Cookie
+		self.Request_Class:Type[Request]			= Request
+		self.Response_Class:Type[Response]			= Response
+		self.Multipart:Type[Multipart]				= Multipart
 	
 	@property 
-	def server(self):
+	def Server(self):
 		return self.ownerComp.par.Server.eval()
 	
+	@property
+	def _webclient(self) -> webclientDAT:
+		return self.ownerComp.op("webclient")
+	
 	def Timeout(self):
-		self.ownerComp.op("webclient").par.stop.pulse()
+		self._webclient.par.stop.pulse()
 		self.log("Timeout", self.current_request._get_url() )
 		self.ownerComp.op("callbackManager").Do_Callback("onTimeout", self.current_request, self.ownerComp)
 
 		self.current_request = None
 		self.active = False
-		self.check_query()
+		self._check_query()
 	
-	def check_query(self):
-		
+	def _check_query(self):
 		if self.active: return
 		self.ownerComp.op("timeout").par.initialize.pulse()
 		if not self.requests: 
@@ -57,16 +65,16 @@ class extQueriedWebClient:
 			return self.ownerComp.op("callbackManager").Do_Callback("onQueryEmpty", self.ownerComp)
 		
 		self.Processing.val = True
-		self.active = True
+		self.active 		= True
 		self.current_request = self.requests.pop(0)
-		run( "me.ext.extQueriedWebClient.trigger_request()", fromOP=self.ownerComp, delayFrames = 1)
-		return
+		run( "me.ext.extQueriedWebClient._trigger_request()", fromOP=self.ownerComp, delayFrames = 1)
+	
 		
-	def parse_body(self, data):
+	def _parse_body(self, data):
 		return json.dumps( data ) if type(data) is dict else data
 	
 	
-	def read_body(self, data):
+	def _read_body(self, data):
 		try:
 			encoded_data = data.decode()
 		except: 
@@ -76,7 +84,7 @@ class extQueriedWebClient:
 		except:
 			return encoded_data
 		
-	def trigger_request(self):
+	def _trigger_request(self):
 		self.ownerComp.op("timeout").par.start.pulse()
 		self.log("Running Request", self.current_request._get_url() )
 		self.ownerComp.op("webclient").request(
@@ -86,7 +94,7 @@ class extQueriedWebClient:
 			data 	= self.current_request._get_data()
 		)
 	
-	def parse_response(self, status, headerDict, data):
+	def _parse_response(self, status, headerDict, data):
 		statusCode = status["code"]
 		statusReason = status["message"]
 		self.log("Getting Response", self.current_request._get_url(), statusCode )
@@ -99,7 +107,7 @@ class extQueriedWebClient:
 		
 		self.current_request = None
 		
-		response_item = response.Response(
+		response_item = Response(
 			statusCode, statusReason, headerDict, data
 		)
 
@@ -122,7 +130,7 @@ class extQueriedWebClient:
 		
 		#Set active AFTER callbacks, otherwise order of execution is borked!
 		self.active = False
-		self.check_query()
+		self._check_query()
 		return
 	
 	def _read_header(self):
@@ -130,17 +138,22 @@ class extQueriedWebClient:
 			return { row[0].val : row[1].val for row in self.ownerComp.par.Header.eval().rows() }
 		return {}
 
-	def QueryRequest(self, request_object):
-		request_object.header.update( self._read_header() )
-		self.requests.append( request_object )
-		self.check_query()
-		return request_object
+	def QueryRequest(self, requestObject:Request):
+		requestObject.header.update( self._read_header() )
+		self.requests.append( requestObject )
+		self._check_query()
+		return requestObject
 
 	
-	def Get(self, endpoint, params = {}, header = {}, cookies = [], callback = default_callback):
+	def Get(self, 
+		 endpoint:str, 
+		 params:Dict[str,str] = {}, 
+		 header:Dict[str,str] = {}, 
+		 cookies:list[Cookie] = [], 
+		 callback:requestCallback = default_callback) -> Request:
 		return self.QueryRequest( 
-			request.Request(
-				self.server,
+			Request(
+				self.Server,
 				"GET",
 				uri = endpoint,
 				query = params,
@@ -151,32 +164,62 @@ class extQueriedWebClient:
 			)
 		 )
 			
-	def Post(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
+	def Post(self, 
+		  endpoint:str, 
+		  params:Dict[str,str] = {}, 
+		  header:Dict[str,str] = {}, 
+		  cookies:list[Cookie] = [], 
+		  data:requestData = None, 
+		  callback:requestCallback = default_callback)-> Request:
 		method = "POST"
 		return self.QueryRequest( 
-			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
+			Request(self.Server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Put(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
+	def Put(self, 
+		  endpoint:str, 
+		  params:Dict[str,str] = {}, 
+		  header:Dict[str,str] = {}, 
+		  cookies:list[Cookie] = [], 
+		  data:requestData = None, 
+		  callback:requestCallback = default_callback)-> Request:
 		method = "PUT"
 		return self.QueryRequest( 
-			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
+			Request(self.Server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Patch(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
+	def Patch(self, 
+		  endpoint:str, 
+		  params:Dict[str,str] = {}, 
+		  header:Dict[str,str] = {}, 
+		  cookies:list[Cookie] = [], 
+		  data:requestData = None, 
+		  callback:requestCallback = default_callback)-> Request:
 		method = "PATCH"
 		return self.QueryRequest( 
-			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
+			Request(self.Server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 		
-	def Delete(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
+	def Delete(self, 
+		  endpoint:str, 
+		  params:Dict[str,str] = {}, 
+		  header:Dict[str,str] = {}, 
+		  cookies:list[Cookie] = [], 
+		  data:requestData = None, 
+		  callback:requestCallback = default_callback)-> Request:
 		method = "DELETE"
 		return self.QueryRequest( 
-			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
+			Request(self.Server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )
 	
-	def Search(self, endpoint, params = {}, header = {}, cookies = [], data = None, callback = default_callback):
+	def Search(self, 
+		  endpoint:str, 
+		  params:Dict[str,str] = {}, 
+		  header:Dict[str,str] = {}, 
+		  cookies:list[Cookie] = [], 
+		  data:requestData = None, 
+		  callback:requestCallback = default_callback)-> Request:
 		method = "SEARCH"
 		return self.QueryRequest( 
-			request.Request(self.server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
+			Request(self.Server,method,uri = endpoint,query = params,header = header,cookies = cookies,data = data,callback = callback)
 		 )

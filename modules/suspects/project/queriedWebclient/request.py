@@ -10,6 +10,9 @@ from dataclasses import dataclass
 from urllib.parse import urlencode
 import json
 from cookie import Cookie
+from typing import Callable, List
+
+requestCallback = Callable[["Request", "Response", "extQueriedWebClient"],None]
 
 @dataclass
 class Request:
@@ -18,7 +21,7 @@ class Request:
 	header : dict
 	query  : dict
 	data   : any
-	cookies : list
+	cookies : List[Cookie]
 	#get generated dynamicly!
 	#_td_request : any
 

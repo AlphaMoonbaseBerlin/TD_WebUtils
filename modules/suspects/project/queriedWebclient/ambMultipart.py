@@ -9,7 +9,7 @@ Saveorigin : WebUtils.toe
 Saveversion : 2022.32660
 Info Header End'''
 
-import mimetypes, uuid
+import mimetypes
 from io import BytesIO
 from pathlib import Path
 strCodec = "ISO-8859-1"
