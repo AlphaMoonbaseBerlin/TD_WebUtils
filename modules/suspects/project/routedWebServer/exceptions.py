@@ -1,4 +1,3 @@
-
 '''Info Header Start
 Name : exceptions
 Author : Wieland@AMB-ZEPH15

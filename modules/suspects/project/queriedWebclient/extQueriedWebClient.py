@@ -1,4 +1,3 @@
-
 '''Info Header Start
 Name : extQueriedWebClient
 Author : Wieland@AMB-ZEPH15
