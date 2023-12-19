@@ -96,9 +96,9 @@ class extQueriedWebClient:
 	def _parse_response(self, status, headerDict, data):
 		statusCode = status["code"]
 		statusReason = status["message"]
-		self.log("Getting Response", self.current_request._get_url(), statusCode )
+		self.log("Getting Response", self.current_request, statusCode )
 		#redirects and similiar should be ignored!
-		if statusCode < 200 and 300 <= statusCode < 400: 
+		if statusCode < 200 or 300 <= statusCode < 400: 
 			self.log("Ignoring Response", statusReason)
 			return
 
