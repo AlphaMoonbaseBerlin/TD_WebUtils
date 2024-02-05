@@ -29,8 +29,7 @@ class extFileDownloader:
 							filename = None, 
 							meta = None,
 							requestHeader = {} ):
-		self.query.append(
-			Download(
+		nextDownload = Download(
 				source				= sourceUrl, 
 				fileDir				= targetDir, 
 				fileName			= filename, 
@@ -41,10 +40,12 @@ class extFileDownloader:
 				errorCallback 		= self._errorDownload,
 				startCallback		= self._startDownload,
 				requestHeader 		= requestHeader )
+		self.query.append(
+			nextDownload
 		)
 		self.log("Querying Download", sourceUrl, targetDir)
 		self.checkQuery()
-		return
+		return nextDownload
 
 	def checkQuery(self):
 		self.log("Checking query.")
